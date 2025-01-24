@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .news-app {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 400px;
+        }
+        .news-app h1 {
+            margin: 0 0 20px;
+            font-size: 24px;
+            color: #333333;
+        }
+        .news-app input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .news-app button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .news-app button:hover {
+            background-color: #0056b3;
+        }
+        .news-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .news-item {
+            margin-bottom: 20px;
+            padding: 10px;
+            
+            border-bottom: 1px solid #eeeeee;
+        }
+        .news-item h3 {
+            margin: 0 0 10px;
+            font-size: 18px;
+        }
+        .news-item p {
+            margin: 0 0 5px;
+            color: #555555;
+        }
+        .news-item a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        .news-item a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="news-app">
+        <h1>News App</h1>
+        <input type="text" id="location" placeholder="Enter topic or keyword" />
+        <button onclick="getNews()">Get News</button>
+        <div class="news-list" id="news-list"></div>
+    </div>
+
+    <script>
+        async function getNews() {
+            const topic = document.getElementById('location').value;
+            const newsList = document.getElementById('news-list');
+
+            if (!topic) {
+                newsList.innerHTML = '<p>Please enter a topic or keyword.</p>';
+                return;
+            }
+
+            newsList.innerHTML = '<p>Fetching news...</p>';
+
+            try {
+                const response = await fetch(`https://newsapi.org/v2/everything?q=${encodeURIComponent(topic)}&sortBy=publishedAt&apiKey=43431c357ca94b2b817a6229e257bd48`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch news');
+                }
+                const data = await response.json();
+
+                if (data.articles.length === 0) {
+                    newsList.innerHTML = '<p>No news articles found for the given topic.</p>';
+                    return;
+                }
+
+                newsList.innerHTML = data.articles.map(article => `
+                    <div class="news-item">
+                        <h3>${article.title}</h3>
+                        <p>By ${article.author || 'Unknown Author'} | ${new Date(article.publishedAt).toLocaleDateString()}</p>
+                        <p>${article.description || 'No description available.'}</p>
+                        <a href="${article.url}" target="_blank">Read more</a>
+                    </div>
+                `).join('');
+            } catch (error) {
+                newsList.innerHTML = '<p>Error fetching news. Please try again.</p>';
+            }
+        }
+    </script>
+</body>
+</html>
